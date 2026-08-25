@@ -179,6 +179,7 @@
             flex-direction: column;
             align-items: center;
             flex-shrink: 0;
+            gap: 8px;
         }
         .qr-code-right {
             display: flex;
@@ -227,6 +228,8 @@
         .action-buttons button:active { transform: scale(0.96); }
         .action-buttons button:nth-child(1) { background: #7a93ac; color: #fff; }
         .action-buttons button:nth-child(3) { background: #6a9a7a; color: #fff; }
+        .action-buttons button:nth-child(4) { background: #c08a5a; color: #fff; }
+        .action-buttons button:nth-child(5) { background: #b5504a; color: #fff; }
         .action-buttons .copy-success {
             color: #6a9a7a; font-size: 12px; line-height: 38px; display: none;
         }
@@ -242,6 +245,22 @@
             max-width: 180px; word-wrap: break-word; line-height: 1.3;
             color: #4a5c6e;
         }
+
+ /* 使用说明 */
+        .usage-tips { font-size: 14px; line-height: 1.7; text-align: left; }
+        .usage-tips h3 { margin-bottom: 10px; color: #6b7f92; font-size: 15px; }
+        /* 浏览器提示 — 琥珀色，注意性质 */
+        .usage-tips .browser-tip {
+            background: #fdf6e8; border: 1px solid #e8d8b0; border-radius: 8px;
+            padding: 8px 12px; margin-bottom: 10px; font-size: 13px; color: #9a7e3a;
+        }
+        .usage-tips ol { padding-left: 20px; }
+        /* 安卓说明 — 绿灰，正面引导 */
+        .usage-tips li:nth-child(1) { color: #5a7a6a; }
+        /* 鸿蒙说明 — 蓝灰，补充说明 */
+        .usage-tips li:nth-child(2) { color: #6a7a8a; }
+        /* 保存说明 — 琥珀色，操作引导 */
+        .usage-tips li:nth-child(3) { color: #9a7e3a; }
 
         /* 页脚 */
         .footer { text-align: center; font-size: 11px; color: #9aa8b6; padding: 16px 0 8px; }
@@ -281,17 +300,29 @@
     <div class="card">
         <div class="card-title">生成二维码</div>
         <div class="button-group">
-            <button onclick="generateQRCodes(500, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=69755&activityId=100129&deliveryId=69755&sceneId=7779&itemIds=', '500☀☀', '500ss')" data-btn-key="500ss">500☀☀(1次)<span class="usage-badge zero">0</span></button>
-            <button onclick="generateQRCodes(30000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=68479&deliveryId=68479&sceneId=7506&itemIds=', '3万', '3w')" data-btn-key="3w">3万肥料(1次)<span class="usage-badge zero">0</span></button>
-            <button onclick="generateQRCodes(40000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=68422&deliveryId=68422&sceneId=7506&itemIds=', '4万①', '4w1')" data-btn-key="4w1">4万肥料①(1次)<span class="usage-badge zero">0</span></button>
-            <button onclick="generateQRCodes(40000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=74994&deliveryId=74994&sceneId=7506&itemIds=', '4万②', '4w2')" data-btn-key="4w2">4万肥料②(1次)<span class="usage-badge zero">0</span></button>
-            <button onclick="generateQRCodes(50000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=69029&deliveryId=69029&sceneId=7310&itemIds=', '5万①', '5w1')" data-btn-key="5w1">5万肥料①(1次)<span class="usage-badge zero">0</span></button>
-            <button onclick="generateQRCodes(50000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=70424&deliveryId=70424&sceneId=7506&itemIds=', '5万②', '5w2')" data-btn-key="5w2">5万肥料②(1次)<span class="usage-badge zero">0</span></button>
+            <button onclick="generateQRCodes(30000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=68479&deliveryId=68479&sceneId=7506&itemIds=', '3万', '3w')" data-btn-key="3w">3万肥料<span class="usage-badge zero">0</span></button>
+            <button onclick="generateQRCodes(500阳光, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=69755&activityId=100129&deliveryId=69755&sceneId=7779&itemIds=', '500☀☀', '500ss')" data-btn-key="500ss">500☀☀(1次)<span class="usage-badge zero">0</span></button>            
+            <button onclick="generateQRCodes(40000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=68422&deliveryId=68422&sceneId=7506&itemIds=', '4万①', '4w1')" data-btn-key="4w1">4万肥料①<span class="usage-badge zero">0</span></button>
+            <button onclick="generateQRCodes(40000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=74994&deliveryId=74994&sceneId=7506&itemIds=', '4万②', '4w2')" data-btn-key="4w2">4万肥料②<span class="usage-badge zero">0</span></button>
+            <button onclick="generateQRCodes(50000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=69029&deliveryId=69029&sceneId=7310&itemIds=', '5万①', '5w1')" data-btn-key="5w1">5万肥料①<span class="usage-badge zero">0</span></button>
+            <button onclick="generateQRCodes(50000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=70424&deliveryId=70424&sceneId=7506&itemIds=', '5万②', '5w2')" data-btn-key="5w2">5万肥料②<span class="usage-badge zero">0</span></button>
             <button onclick="generateQRCodes(60000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=68206&deliveryId=68206&sceneId=7506&itemIds=', '6万', '6w')" data-btn-key="6w">6万肥料(1次)<span class="usage-badge zero">0</span></button>
+            <button onclick="generateQRCodes('签到元宝', 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&asac=2A24229CRW8AFXDCFEMN20&spma=mspd&spmb=qdmsxiadan&prismTrace=90243&activityId=100129&awardIndex=1&cpcExpireSecond=259200&deliveryId=90243&fromToken=zK2zNZX1xSW16xGBQAfB6zilgJ0UMUOU6UQU0UaUZUGv&implId=other_1314_0_90243_0&samplingRate=10&sceneId=9267&hd_from_id=100129&mediafrom=&spm=hbqd5.30348439.c1.d1&itemIds=', '签到元宝', '签到元宝')" data-btn-key="签到元宝">签到元宝<span class="usage-badge zero">0</span></button>
         </div>
     </div>
 
     <div id="resultArea"></div>
+
+  <div class="card">
+        <div class="usage-tips">
+            <h3>使用说明</h3>
+            <div class="browser-tip">💡 跳转功能仅在网页端以及app内生效</div>
+            <ol>
+                <li><strong>安卓设备：</strong>生成二维码后点击「一键跳转淘宝APP」，淘宝自动弹窗打开过肥页面</li>
+                <li><strong>鸿蒙设备：</strong>跳转淘宝不支持自动弹窗，请在淘宝首页搜索框长按粘贴已复制的链接即可打开过肥页面</li>
+            </ol>
+        </div>
+    </div>
 
     <div class="footer">秒杀商品二维码生成工具</div>
 </div>
@@ -858,6 +889,95 @@
             }
         }
 
+        // 跳转支付宝APP
+        function openAlipayApp(url) {
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
+
+            // alipays://platformapi/startapp?appId=20000067&url= 支付宝内置浏览器打开H5
+            const alipayScheme = `alipays://platformapi/startapp?appId=20000067&url=${encodeURIComponent(url)}`;
+            const alipayFallback = 'alipays://';
+
+            let appOpened = false;
+            const visibilityHandler = function() {
+                if (document.hidden) { appOpened = true; }
+            };
+            document.addEventListener('visibilitychange', visibilityHandler);
+
+            function tryScheme(schemeUrl) {
+                if (isAPK) {
+                    window.location.href = schemeUrl;
+                } else if (isIOS) {
+                    window.location.href = schemeUrl;
+                } else {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = schemeUrl;
+                    document.body.appendChild(iframe);
+                    setTimeout(function() {
+                        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                    }, 3000);
+                }
+            }
+
+            // 优先用带URL的scheme打开指定页面，失败回落仅启动支付宝
+            tryScheme(alipayScheme);
+            setTimeout(function() {
+                if (appOpened) {
+                    document.removeEventListener('visibilitychange', visibilityHandler);
+                    return;
+                }
+                tryScheme(alipayFallback);
+            }, 1000);
+        }
+
+        // 跳转天猫APP
+        function openTmallApp(url) {
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
+
+            // tmall:// + URL路径（天猫自身scheme）
+            const tmallScheme = `tmall://${url.replace('https://', '').replace('http://', '')}`;
+            // tbopen:// + URL（天猫支持淘宝的tbopen协议）
+            const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=${encodeURIComponent(url)}`;
+
+            let appOpened = false;
+            const visibilityHandler = function() {
+                if (document.hidden) { appOpened = true; }
+            };
+            document.addEventListener('visibilitychange', visibilityHandler);
+
+            function tryScheme(schemeUrl) {
+                if (isAPK) {
+                    window.location.href = schemeUrl;
+                } else if (isIOS) {
+                    window.location.href = schemeUrl;
+                } else {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = schemeUrl;
+                    document.body.appendChild(iframe);
+                    setTimeout(function() {
+                        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                    }, 3000);
+                }
+            }
+
+            if (isIOS) {
+                tryScheme(tmallScheme);
+            } else {
+                // 安卓/鸿蒙/APK：优先 tmall://，失败回落 tbopen://
+                tryScheme(tmallScheme);
+                setTimeout(function() {
+                    if (appOpened) {
+                        document.removeEventListener('visibilitychange', visibilityHandler);
+                        return;
+                    }
+                    tryScheme(tbopenUrl);
+                }, 1000);
+            }
+        }
+
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
         function createQRCodeWithText(qrCodeDataURL, customText) {
             return new Promise((resolve) => {
@@ -1010,7 +1130,7 @@
                 // 长按保存提示
                 const saveTip = document.createElement('div');
                 saveTip.className = 'long-press-tip';
-                saveTip.textContent = '👆 长按二维码图片可保存至图库';
+                saveTip.textContent = '👆 长按二维码可保存';
 
                 // 创建操作按钮区域
                 const actionButtons = document.createElement('div');
@@ -1058,11 +1178,15 @@
                 actionButtons.innerHTML = `
                     <button onclick="if(copyToClipboard(window._lastGeneratedLink)){this.nextElementSibling.style.display='inline';setTimeout(()=>this.nextElementSibling.style.display='none',2000)}else{alert('复制失败，请长按下方链接文本手动复制')}">复制链接</button>
                     <span class="copy-success">✓ 已复制</span>
-                    <button onclick="openTaobaoApp(window._lastGeneratedLink)">一键跳转淘宝APP</button>
+                    <button onclick="openTaobaoApp(window._lastGeneratedLink)">一键跳转淘宝</button>
+                    <button onclick="openAlipayApp(window._lastGeneratedLink)">一键跳转支付宝</button>
+                    <button onclick="openTmallApp(window._lastGeneratedLink)">一键跳转天猫</button>
                 `;
 
-                qrRight.appendChild(saveTip);
                 qrRight.appendChild(actionButtons);
+
+                // 左侧：二维码 + 保存提示（保存提示在二维码下方）
+                qrLeft.appendChild(saveTip);
 
                 container.appendChild(qrLeft);
                 container.appendChild(qrRight);
