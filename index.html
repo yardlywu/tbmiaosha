@@ -932,47 +932,51 @@
             }, 1000);
         }
 
-       // 跳转天猫APP
+ // 跳转天猫APP
 function openTmallApp(url) {
-    const tmallScheme = `tmall://${url.replace(/^https?:\/\//, '')}`;
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     let appOpened = false;
-
-    function visibilityHandler() {
+    const visibilityHandler = function () {
         if (document.hidden) appOpened = true;
-    }
+    };
     document.addEventListener('visibilitychange', visibilityHandler);
 
-    // 直接location，不用iframe
-    window.location.href = tmallScheme;
+    if (isIOS) {
+        // iOS 使用 tmall://
+        const tmallScheme = `tmall://${url.replace(/^https?:\/\//, '')}`;
+        window.location.href = tmallScheme;
+    } else {
+        // 安卓使用Intent，指定天猫包名 com.tmall.wireless
+        const intentStr = `intent://${url.replace(/^https?:\/\//, '')}#Intent;scheme=tmall;package=com.tmall.wireless;end;`;
+        window.location.href = intentStr;
+    }
 
     setTimeout(function () {
         document.removeEventListener('visibilitychange', visibilityHandler);
-        //唤起失败直接打开天猫网页，禁止tbopen://
-        if (!appOpened) {
-            window.open("https://m.tmall.com", "_blank");
-        }
-    },1200);
+    },1300);
 }
 
 // 跳转点淘APP
 function openDianTaoApp(url) {
-    const diantaoScheme = "dotao://";
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     let appOpened = false;
-
-    function visibilityHandler() {
+    const visibilityHandler = function () {
         if (document.hidden) appOpened = true;
-    }
+    };
     document.addEventListener('visibilitychange', visibilityHandler);
 
-    window.location.href = diantaoScheme;
+    if (isIOS) {
+        // iOS点淘 dotao://，仅启动App首页，无法带入链接
+        window.location.href = "dotao://";
+    } else {
+        // 安卓Intent，点淘包名 com.taobao.livetao
+        const intentStr = `intent://#Intent;scheme=dotao;package=com.taobao.livetao;end;`;
+        window.location.href = intentStr;
+    }
 
     setTimeout(function () {
         document.removeEventListener('visibilitychange', visibilityHandler);
-        //唤起失败打开点淘网页
-        if (!appOpened) {
-            window.open("https://www.dotao.com", "_blank");
-        }
-    },1200);
+    },1300);
 }
 
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
