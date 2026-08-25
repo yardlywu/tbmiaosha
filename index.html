@@ -817,6 +817,17 @@
             // taobao:// scheme（iOS 主要认这个）
             const taobaoScheme = `taobao://${url.replace('https://', '')}`;
 
+          //一键跳转天猫
+function openTmallApp(url) {
+    const tmallScheme = `tmall://${url.replace('https://', '')}`;
+    window.location.href = tmallScheme;
+}
+//一键跳转点淘
+function openDotaoApp(url) {
+    const dotaoScheme = `dotao://${url.replace('https://', '')}`;
+    window.location.href = dotaoScheme;
+}
+
             let appOpened = false;
             const visibilityHandler = function() {
                 if (document.hidden) { appOpened = true; }
@@ -1056,11 +1067,12 @@
                 const qrRight = document.createElement('div');
                 qrRight.className = 'qr-code-right';
 
-                actionButtons.innerHTML = `
+               actionButtons.innerHTML = `
                     <button onclick="if(copyToClipboard(window._lastGeneratedLink)){this.nextElementSibling.style.display='inline';setTimeout(()=>this.nextElementSibling.style.display='none',2000)}else{alert('复制失败，请长按下方链接文本手动复制')}">复制链接</button>
                     <span class="copy-success">✓ 已复制</span>
                     <button onclick="openTaobaoApp(window._lastGeneratedLink)">一键跳转淘宝APP</button>
-                `;
+                    <button onclick="openTmallApp(window._lastGeneratedLink)">一键跳转天猫</button>
+                    <button onclick="openDotaoApp(window._lastGeneratedLink)">一键跳转点淘</button>
 
                 qrRight.appendChild(saveTip);
                 qrRight.appendChild(actionButtons);
