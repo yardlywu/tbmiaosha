@@ -978,6 +978,45 @@
             }
         }
 
+// 跳转点淘APP
+function openDianTaoApp(url) {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
+    // tbopen 协议，点淘可以识别打开H5页面
+    const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=${encodeURIComponent(url)}`;
+    // 纯唤起点淘 fallback
+    const diantaoFallback = 'taotiao://';
+
+    let appOpened = false;
+    const visibilityHandler = function() {
+        if (document.hidden) { appOpened = true; }
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
+
+    function tryScheme(schemeUrl) {
+        if (isAPK || isIOS) {
+            window.location.href = schemeUrl;
+        } else {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = schemeUrl;
+            document.body.appendChild(iframe);
+            setTimeout(function () {
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+            }, 3000);
+        }
+    }
+
+    tryScheme(tbopenUrl);
+    setTimeout(function () {
+        if (appOpened) {
+            document.removeEventListener('visibilitychange', visibilityHandler);
+            return;
+        }
+        tryScheme(diantaoFallback);
+    }, 1000);
+}
+
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
         function createQRCodeWithText(qrCodeDataURL, customText) {
             return new Promise((resolve) => {
