@@ -932,13 +932,13 @@
             }, 1000);
         }
 
- // 跳转天猫APP
+// 跳转天猫APP
 function openTmallApp(url) {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
     // tmall:// + URL路径（天猫自身scheme）
     const tmallScheme = `tmall://${url.replace('https://', '').replace('http://', '')}`;
-    // tbopen:// + URL（天猫支持淘宝的tbopen协议）
+    // tbopen:// + URL（天猫支持淘宝的tbopen协议）【变量保留，但不再调用！调用就必跳淘宝】
     const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=${encodeURIComponent(url)}`;
     // 安卓完整Intent，用于触发系统选择弹窗
     const tmallIntent = `intent://${url.replace(/^https?:\/\//,'')}#Intent;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;scheme=tmall;package=com.tmall.wireless;end;`;
@@ -968,20 +968,22 @@ function openTmallApp(url) {
     if (isIOS) {
         tryScheme(tmallScheme);
     } else {
-        //安卓优先完整Intent，尽可能触发系统弹窗，失败走原来逻辑
+        //安卓优先完整Intent，尽可能触发系统弹窗
         tryScheme(tmallIntent);
         setTimeout(function() {
             if (appOpened) {
                 document.removeEventListener('visibilitychange', visibilityHandler);
                 return;
             }
+            //Intent失败，尝试原生tmall://
             tryScheme(tmallScheme);
             setTimeout(function(){
                 if(appOpened){
                     document.removeEventListener('visibilitychange', visibilityHandler);
                     return;
                 }
-                tryScheme(tbopenUrl);
+                // 重点：这里删掉 tryScheme(tbopenUrl); 不再执行，禁止跳淘宝！
+                document.removeEventListener('visibilitychange', visibilityHandler);
             },1000);
         },1000);
     }
