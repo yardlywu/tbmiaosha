@@ -932,90 +932,47 @@
             }, 1000);
         }
 
-        // 跳转天猫APP
-        function openTmallApp(url) {
-            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
+       // 跳转天猫APP
+function openTmallApp(url) {
+    const tmallScheme = `tmall://${url.replace(/^https?:\/\//, '')}`;
+    let appOpened = false;
 
-            // tmall:// + URL路径（天猫自身scheme）
-            const tmallScheme = `tmall://${url.replace('https://', '').replace('http://', '')}`;
-            // tbopen:// + URL（天猫支持淘宝的tbopen协议）
-            const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=${encodeURIComponent(url)}`;
+    function visibilityHandler() {
+        if (document.hidden) appOpened = true;
+    }
+    document.addEventListener('visibilitychange', visibilityHandler);
 
-            let appOpened = false;
-            const visibilityHandler = function() {
-                if (document.hidden) { appOpened = true; }
-            };
-            document.addEventListener('visibilitychange', visibilityHandler);
+    // 直接location，不用iframe
+    window.location.href = tmallScheme;
 
-            function tryScheme(schemeUrl) {
-                if (isAPK) {
-                    window.location.href = schemeUrl;
-                } else if (isIOS) {
-                    window.location.href = schemeUrl;
-                } else {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = schemeUrl;
-                    document.body.appendChild(iframe);
-                    setTimeout(function() {
-                        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-                    }, 3000);
-                }
-            }
-
-            if (isIOS) {
-                tryScheme(tmallScheme);
-            } else {
-                // 安卓/鸿蒙/APK：优先 tmall://，失败回落 tbopen://
-                tryScheme(tmallScheme);
-                setTimeout(function() {
-                    if (appOpened) {
-                        document.removeEventListener('visibilitychange', visibilityHandler);
-                        return;
-                    }
-                    tryScheme(tbopenUrl);
-                }, 1000);
-            }
+    setTimeout(function () {
+        document.removeEventListener('visibilitychange', visibilityHandler);
+        //唤起失败直接打开天猫网页，禁止tbopen://
+        if (!appOpened) {
+            window.open("https://m.tmall.com", "_blank");
         }
+    },1200);
+}
 
 // 跳转点淘APP
 function openDianTaoApp(url) {
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
-    // tbopen 协议，点淘可以识别打开H5页面
-    const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=${encodeURIComponent(url)}`;
-    // 纯唤起点淘 fallback
-    const diantaoFallback = 'taotiao://';
-
+    const diantaoScheme = "dotao://";
     let appOpened = false;
-    const visibilityHandler = function() {
-        if (document.hidden) { appOpened = true; }
-    };
+
+    function visibilityHandler() {
+        if (document.hidden) appOpened = true;
+    }
     document.addEventListener('visibilitychange', visibilityHandler);
 
-    function tryScheme(schemeUrl) {
-        if (isAPK || isIOS) {
-            window.location.href = schemeUrl;
-        } else {
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = schemeUrl;
-            document.body.appendChild(iframe);
-            setTimeout(function () {
-                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-            }, 3000);
-        }
-    }
+    window.location.href = diantaoScheme;
 
-    tryScheme(tbopenUrl);
     setTimeout(function () {
-        if (appOpened) {
-            document.removeEventListener('visibilitychange', visibilityHandler);
-            return;
+        document.removeEventListener('visibilitychange', visibilityHandler);
+        //唤起失败打开点淘网页
+        if (!appOpened) {
+            window.open("https://www.dotao.com", "_blank");
         }
-        tryScheme(diantaoFallback);
-    }, 1000);
+    },1200);
 }
 
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
