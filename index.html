@@ -697,11 +697,10 @@
             }
         }
 
-        // 跳转到淘宝APP，tbopen协议，forceWebView=1禁用PHA容器
         function openTaobaoApp(h5RawUrl) {
-            const encodedH5 = encodeURIComponent(h5RawUrl);
-            const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&bootImage=0&forceWebView=1&h5Url=${encodedH5}`;
-            window.location.href = tbopenUrl;
+    const encodedH5 = encodeURIComponent(h5RawUrl);
+    const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&bootImage=0&forceWebView=1&h5Url=${encodedH5}`;
+    window.location.href = tbopenUrl;
         }
 
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
