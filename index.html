@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -12,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="秒杀二维码">
     <meta name="theme-color" content="#6a9a7a">
     <link rel="manifest" href="/tktool/manifest.json">
-    <title>秒杀商品过肥二维码生成</title>
+    <title>秒杀商品二维码生成</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
@@ -21,7 +20,7 @@
             min-height: 100vh;
             padding: 16px;
             color: #3a4a5a;
-        } 
+        }
         .wrapper { max-width: 480px; margin: 0 auto; }
 
         /* 标题 */
@@ -43,18 +42,6 @@
         }
         .card-title::before { content: ""; width: 4px; height: 16px; background: #8ba0b5; border-radius: 2px; }
 
-        /* 权限提示 — 蓝色系，提示性质 */
-        .permission-tip {
-            background: #eaf0f6;
-            border: 1px solid #c5d2de;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 14px;
-            font-size: 13px;
-            color: #5a7a96;
-            text-align: left;
-        }
-
         /* 输入区 */
         .input-section { margin-bottom: 14px; }
         .input-section label {
@@ -73,22 +60,42 @@
         }
         .input-section input:focus { outline: none; border-color: #8ba0b5; }
         .input-section input::placeholder { color: #b0bcc8; }
-        .input-row { display: flex; gap: 10px; align-items: center; }
+        .input-row { display: flex; gap: 6px; align-items: center; }
         .input-row input { flex: 1; }
-        .clear-button {
-            padding: 12px 16px; font-size: 14px; font-weight: 600;
-            background: #eef2f6; color: #7a8b9c;
-            border: none; border-radius: 10px; cursor: pointer;
-            white-space: nowrap; flex-shrink: 0;
+        .input-row { display: flex; gap: 8px; align-items: stretch; }
+        .input-row input { flex: 1; }
+        .action-btn-group {
+            display: flex;
+            flex-shrink: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-        .clear-button:active { background: #e0e6ec; }
-        .scan-button {
-            padding: 12px 16px; font-size: 14px; font-weight: 600;
-            background: #6a9a7a; color: #fff;
-            border: none; border-radius: 10px; cursor: pointer;
-            white-space: nowrap; flex-shrink: 0;
+        .action-btn-group button {
+            padding: 0 14px;
+            height: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            position: relative;
         }
+        .action-btn-group button + button::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 25%;
+            bottom: 25%;
+            width: 1px;
+            background: rgba(255,255,255,0.25);
+        }
+        .scan-button { background: #6a9a7a; color: #fff; }
         .scan-button:active { background: #5a8a6a; }
+        .paste-button { background: #7ba9c9; color: #fff; }
+        .paste-button:active { background: #6b99b9; }
+        .clear-button { background: #a0b0c0; color: #fff; }
+        .clear-button:active { background: #90a0b0; }
 
         /* 扫码弹窗 */
         .scan-modal {
@@ -122,6 +129,7 @@
             gap: 10px;
         }
         .button-group button {
+            position: relative;
             padding: 14px 12px; font-size: 15px; font-weight: 600;
             border: none; border-radius: 12px; cursor: pointer;
             background: linear-gradient(135deg, #7a93ac, #6b82a0);
@@ -129,7 +137,26 @@
             box-shadow: 0 4px 14px rgba(110,130,160,0.25);
             transition: transform 0.1s, box-shadow 0.2s;
         }
-        .button-group button:last-child:nth-child(5) {
+        .button-group button .usage-badge {
+            position: absolute;
+            top: -6px; right: -6px;
+            min-width: 20px; height: 20px;
+            padding: 0 5px;
+            font-size: 11px; font-weight: 700;
+            line-height: 20px; text-align: center;
+            background: #ff6b35;
+            color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(255,107,53,0.5);
+            pointer-events: none;
+        }
+        .button-group button .usage-badge.zero {
+            background: rgba(255,255,255,0.25);
+            color: rgba(255,255,255,0.7);
+            box-shadow: none;
+        }
+        /* 当按钮总数为奇数时，最后一个按钮独占一整行，宽度与上方两按钮对齐 */
+        .button-group button:last-child:nth-child(odd) {
             grid-column: 1 / -1;
         }
         .button-group button:active {
@@ -216,22 +243,6 @@
             color: #4a5c6e;
         }
 
-        /* 使用说明 */
-        .usage-tips { font-size: 14px; line-height: 1.7; text-align: left; }
-        .usage-tips h3 { margin-bottom: 10px; color: #6b7f92; font-size: 15px; }
-        /* 浏览器提示 — 琥珀色，注意性质 */
-        .usage-tips .browser-tip {
-            background: #fdf6e8; border: 1px solid #e8d8b0; border-radius: 8px;
-            padding: 8px 12px; margin-bottom: 10px; font-size: 13px; color: #9a7e3a;
-        }
-        .usage-tips ol { padding-left: 20px; }
-        /* 安卓说明 — 绿灰，正面引导 */
-        .usage-tips li:nth-child(1) { color: #5a7a6a; }
-        /* 鸿蒙说明 — 蓝灰，补充说明 */
-        .usage-tips li:nth-child(2) { color: #6a7a8a; }
-        /* 保存说明 — 琥珀色，操作引导 */
-        .usage-tips li:nth-child(3) { color: #9a7e3a; }
-
         /* 页脚 */
         .footer { text-align: center; font-size: 11px; color: #9aa8b6; padding: 16px 0 8px; }
     </style>
@@ -242,10 +253,6 @@
     <div class="header">
         <h1>秒杀商品二维码生成</h1>
         <div class="subtitle">粘贴淘口令，一键生成二维码</div>
-    </div>
-
-    <div class="permission-tip">
-        🔔 为正常使用复制和跳转功能，请授予页面剪贴板访问权限
     </div>
 
     <div class="card">
@@ -261,8 +268,11 @@
             <label for="productLink">淘口令 / 分享文本</label>
             <div class="input-row">
                 <input type="text" id="productLink" placeholder="粘贴淘口令或分享文本" required>
-                <button class="scan-button" onclick="startScan()" title="扫码输入">📷 扫码</button>
-                <button class="clear-button" onclick="clearInput()">清空</button>
+                <div class="action-btn-group">
+                    <button class="scan-button" onclick="startScan()" title="扫码输入">扫码</button>
+                    <button class="paste-button" onclick="pasteFromClipboard()" title="粘贴剪贴板">粘贴</button>
+                    <button class="clear-button" onclick="clearInput()">清空</button>
+                </div>
             </div>
             <div class="tip-text">粘贴淘口令/分享文本或通过当面分享扫码，自动解析获取商品ID</div>
         </div>
@@ -279,21 +289,10 @@
             <button onclick="generateQRCodes(50000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=70424&deliveryId=70424&sceneId=7506&itemIds=', '5万②')">5万肥料②</button>
             <button onclick="generateQRCodes(60000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=68206&deliveryId=68206&sceneId=7506&itemIds=', '6万')">6万肥料</button>
             <button onclick="generateQRCodes('签到元宝', 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&asac=2A24229CRW8AFXDCFEMN20&spma=mspd&spmb=qdmsxiadan&prismTrace=90243&activityId=100129&awardIndex=1&cpcExpireSecond=259200&deliveryId=90243&fromToken=zK2zNZX1xSW16xGBQAfB6zilgJ0UMUOU6UQU0UaUZUGv&implId=other_1314_0_90243_0&samplingRate=10&sceneId=9267&hd_from_id=100129&mediafrom=&spm=hbqd5.30348439.c1.d1&itemIds=')">签到元宝</button> 
-</div>
+ </div>
     </div>
 
     <div id="resultArea"></div>
-
-    <div class="card">
-        <div class="usage-tips">
-            <h3>使用说明</h3>
-            <div class="browser-tip">💡 跳转功能仅在网页端以及app内生效</div>
-            <ol>
-                <li><strong>安卓设备：</strong>生成二维码后点击「一键跳转淘宝APP」，淘宝自动弹窗打开过肥页面</li>
-                <li><strong>鸿蒙设备：</strong>跳转淘宝不支持自动弹窗，请在淘宝首页搜索框长按粘贴已复制的链接即可打开过肥页面</li>
-            </ol>
-        </div>
-    </div>
 
     <div class="footer">秒杀商品二维码生成工具</div>
 </div>
@@ -317,10 +316,110 @@
         let currentQRCodeCanvas = null;
         let currentQRCodeWithTextCanvas = null;
 
+        // ====== 每日按钮使用次数统计 ======
+        const USAGE_KEY = 'btn_daily_usage';
+
+        function getTodayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+        }
+
+        function getUsageData() {
+            try {
+                const raw = localStorage.getItem(USAGE_KEY);
+                if (!raw) return { date: getTodayStr(), counts: {} };
+                const data = JSON.parse(raw);
+                if (data.date !== getTodayStr()) {
+                    return { date: getTodayStr(), counts: {} };
+                }
+                return data;
+            } catch (e) {
+                return { date: getTodayStr(), counts: {} };
+            }
+        }
+
+        function saveUsageData(data) {
+            try {
+                localStorage.setItem(USAGE_KEY, JSON.stringify(data));
+            } catch (e) {}
+        }
+
+        function getUsageCount(btnKey) {
+            const data = getUsageData();
+            return data.counts[btnKey] || 0;
+        }
+
+        function incrementUsageCount(btnKey) {
+            const data = getUsageData();
+            data.counts[btnKey] = (data.counts[btnKey] || 0) + 1;
+            saveUsageData(data);
+            updateBadgeDisplay(btnKey, data.counts[btnKey]);
+        }
+
+        function updateBadgeDisplay(btnKey, count) {
+            const btn = document.querySelector('.button-group button[data-btn-key="' + btnKey + '"]');
+            if (!btn) return;
+            const badge = btn.querySelector('.usage-badge');
+            if (!badge) return;
+            badge.textContent = count;
+            if (count > 0) {
+                badge.classList.remove('zero');
+            } else {
+                badge.classList.add('zero');
+            }
+        }
+
+        function initAllBadges() {
+            const buttons = document.querySelectorAll('.button-group button[data-btn-key]');
+            buttons.forEach(function(btn) {
+                const key = btn.getAttribute('data-btn-key');
+                const count = getUsageCount(key);
+                updateBadgeDisplay(key, count);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAllBadges);
+        } else {
+            initAllBadges();
+        }
+
         // 清空输入框功能
         function clearInput() {
             document.getElementById('productLink').value = '';
             document.getElementById('customText').value = '';
+        }
+
+        // 粘贴剪贴板内容到输入框
+        function pasteFromClipboard() {
+            const input = document.getElementById('productLink');
+            // APK 环境：调用原生读取剪贴板
+            if (typeof NativeBridge !== 'undefined' && NativeBridge.readClipboard) {
+                NativeBridge.readClipboard();
+                return;
+            }
+            // 浏览器环境：使用 Clipboard API
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(function(text) {
+                    if (text && text.trim()) {
+                        input.value = text.trim();
+                        input.dispatchEvent(new Event('input'));
+                    } else {
+                        alert('剪贴板为空');
+                    }
+                }).catch(function() {
+                    // 降级：尝试 execCommand
+                    input.focus();
+                    if (document.execCommand('paste')) {
+                        input.dispatchEvent(new Event('input'));
+                    } else {
+                        alert('请手动粘贴（长按输入框选择粘贴）');
+                    }
+                });
+            } else {
+                input.focus();
+                alert('请手动粘贴（长按输入框选择粘贴）');
+            }
         }
 
         // ====== 扫码功能（APK用原生拍照，浏览器用html5-qrcode浮窗） ======
@@ -409,11 +508,9 @@
             (url) => `https://proxy.cors.sh/${url}`,
             (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
             (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-            (url) => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
-            (url) => `https://crossorigin.me/${url}`,
-            (url) => `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(url)}`,
-            (url) => `https://cors.x2u.in/${url}`,
-            (url) => `https://whateverorigin.org/get?url=${encodeURIComponent(url)}`,
+            (url) => `https://proxy.corsfix.com/?${url}`,
+            (url) => `https://api.cors.syrins.tech/?url=${encodeURIComponent(url)}`,
+            (url) => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
         ];
 
         // 从分享文本中提取短链
@@ -428,7 +525,7 @@
             const promises = CORS_PROXIES.map((proxyFn, i) => {
                 const proxyUrl = proxyFn(targetUrl);
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
                 return fetch(proxyUrl, { signal: controller.signal })
                     .then(resp => {
                         clearTimeout(timeoutId);
@@ -461,65 +558,51 @@
 
         // 通过短链直接跟随重定向获取最终URL（快路径，不走代理）
         async function resolveShortUrl(shortUrl) {
-            // 三种方法并行，谁先成功返回用谁
-            const results = await Promise.allSettled([
-                // 方法1：标准 fetch + redirect follow + body 提取
-                (async () => {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000);
-                    const resp = await fetch(shortUrl, {
-                        redirect: 'follow',
-                        signal: controller.signal,
-                    });
-                    clearTimeout(timeoutId);
-                    if (resp.url && resp.url !== shortUrl) return resp.url;
-                    // e.tb.cn 返回 200 HTML，直接从 body 提取
-                    const body = await resp.text();
-                    if (body && body.length > 200) {
-                        const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
-                        if (urlMatch) return urlMatch[1];
-                        const topMatch = body.match(/topIds=(\d+)/);
-                        if (topMatch) return 'https://item.taobao.com/item.htm?id=' + topMatch[1];
-                    }
-                    throw new Error('no redirect or body match');
-                })(),
-                // 方法2：no-cors 模式
-                (async () => {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000);
-                    const resp = await fetch(shortUrl, {
-                        mode: 'no-cors',
-                        redirect: 'follow',
-                        signal: controller.signal,
-                    });
-                    clearTimeout(timeoutId);
-                    if (resp.url && resp.url !== shortUrl) return resp.url;
-                    throw new Error('no-cors no redirect');
-                })(),
-                // 方法3：XMLHttpRequest
-                new Promise((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.timeout = 3000;
-                    xhr.onreadystatechange = function() {
-                        if (xhr.readyState === 4) {
-                            if (xhr.responseURL && xhr.responseURL !== shortUrl) {
-                                resolve(xhr.responseURL);
-                            } else {
-                                reject(new Error('xhr no redirect'));
-                            }
+            // 两种方法并行，谁先成功返回用谁
+            try {
+                return await Promise.any([
+                    // 方法1：标准 fetch + redirect follow + body 提取
+                    (async () => {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000);
+                        const resp = await fetch(shortUrl, {
+                            redirect: 'follow',
+                            signal: controller.signal,
+                        });
+                        clearTimeout(timeoutId);
+                        if (resp.url && resp.url !== shortUrl) return resp.url;
+                        // e.tb.cn 返回 200 HTML，直接从 body 提取
+                        const body = await resp.text();
+                        if (body && body.length > 200) {
+                            const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
+                            if (urlMatch) return urlMatch[1];
+                            const topMatch = body.match(/topIds=(\d+)/);
+                            if (topMatch) return 'https://item.taobao.com/item.htm?id=' + topMatch[1];
                         }
-                    };
-                    xhr.onerror = () => reject(new Error('xhr error'));
-                    xhr.ontimeout = () => reject(new Error('xhr timeout'));
-                    xhr.open('HEAD', shortUrl, true);
-                    xhr.send();
-                }),
-            ]);
-
-            for (const r of results) {
-                if (r.status === 'fulfilled' && r.value) return r.value;
+                        throw new Error('no redirect or body match');
+                    })(),
+                    // 方法2：XMLHttpRequest HEAD
+                    new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest();
+                        xhr.timeout = 3000;
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4) {
+                                if (xhr.responseURL && xhr.responseURL !== shortUrl) {
+                                    resolve(xhr.responseURL);
+                                } else {
+                                    reject(new Error('xhr no redirect'));
+                                }
+                            }
+                        };
+                        xhr.onerror = () => reject(new Error('xhr error'));
+                        xhr.ontimeout = () => reject(new Error('xhr timeout'));
+                        xhr.open('HEAD', shortUrl, true);
+                        xhr.send();
+                    }),
+                ]);
+            } catch (e) {
+                return null;
             }
-            return null;
         }
 
         // 通过淘口令/分享文本解析获取商品ID（异步，需请求网络）
@@ -537,40 +620,39 @@
             }
             console.log('解析短链:', shortUrl);
 
-            // 2. 快路径+慢路径并行：同时发起重定向跟踪和代理请求，取最快结果
-            const results = await Promise.allSettled([
-                // 快路径：直接跟随重定向
-                (async () => {
-                    const resolvedUrl = await resolveShortUrl(shortUrl);
-                    console.log('重定向结果:', resolvedUrl);
-                    if (resolvedUrl) {
-                        return extractItemIdFromUrl(resolvedUrl);
-                    }
-                    return null;
-                })(),
-                // 慢路径：CORS 代理获取完整 HTML
-                (async () => {
-                    const body = await fetchWithProxy(shortUrl);
-                    console.log('代理结果长度:', body ? body.length : 0);
-                    if (!body) return null;
-                    // 提取 var url = '...'
-                    const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
-                    if (urlMatch) {
-                        const id = extractItemIdFromUrl(urlMatch[1]);
-                        if (id) return id;
-                    }
-                    // 兜底：从 HTML 直接匹配（含 topIds）
-                    const m = body.match(/topIds=(\d+)/) || body.match(/itemIds=(\d+)/) || body.match(/[?&]id=(\d{7,})/);
-                    return m ? m[1] : null;
-                })(),
-            ]);
-
-            // 取最先成功的有效结果
-            for (const r of results) {
-                if (r.status === 'fulfilled' && r.value) return r.value;
+            // 2. 快路径+慢路径并行，谁先成功用谁
+            try {
+                return await Promise.any([
+                    // 快路径：直接跟随重定向
+                    (async () => {
+                        const resolvedUrl = await resolveShortUrl(shortUrl);
+                        console.log('重定向结果:', resolvedUrl);
+                        if (!resolvedUrl) throw new Error('resolve failed');
+                        const id = extractItemIdFromUrl(resolvedUrl);
+                        if (!id) throw new Error('no id in resolved url');
+                        return id;
+                    })(),
+                    // 慢路径：CORS 代理获取完整 HTML
+                    (async () => {
+                        const body = await fetchWithProxy(shortUrl);
+                        console.log('代理结果长度:', body ? body.length : 0);
+                        if (!body) throw new Error('proxy failed');
+                        // 提取 var url = '...'
+                        const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
+                        if (urlMatch) {
+                            const id = extractItemIdFromUrl(urlMatch[1]);
+                            if (id) return id;
+                        }
+                        // 兜底：从 HTML 直接匹配（含 topIds）
+                        const m = body.match(/topIds=(\d+)/) || body.match(/itemIds=(\d+)/) || body.match(/[?&]id=(\d{7,})/);
+                        if (m) return m[1];
+                        throw new Error('no id in proxy body');
+                    })(),
+                ]);
+            } catch (e) {
+                console.error('所有解析路径均失败');
+                return null;
             }
-            console.error('所有解析路径均失败');
-            return null;
         }
 
         // 从商品链接中提取商品ID的函数（保留原逻辑，作为兜底）
@@ -607,52 +689,80 @@
         }
 
         // 复制文本到剪贴板（兼容iOS Safari + Android WebView）
+        // 返回 true=成功, false=失败
         function copyToClipboard(text) {
             // APK 环境：使用原生剪贴板（不受 file:// 协议限制）
             if (isInApp && NativeBridge.copyToClipboard) {
                 NativeBridge.copyToClipboard(text);
-                return;
+                return true;
             }
 
-            // 浏览器环境：优先 Clipboard API
+            // 检测 iOS Safari
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            // iOS Safari：必须同步执行 execCommand，异步 Clipboard API 会丢失用户手势上下文
+            if (isIOS) {
+                return _copyFallback(text);
+            }
+
+            // 非 iOS 浏览器：优先异步 Clipboard API
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).catch(() => {
+                navigator.clipboard.writeText(text).then(() => {}).catch(() => {
                     _copyFallback(text);
                 });
-            } else {
-                _copyFallback(text);
+                return true;
             }
+
+            return _copyFallback(text);
         }
 
-        // iOS Safari 兼容的复制方案
+        // iOS Safari 兼容的复制方案（必须在用户手势的同步调用栈中调用）
         function _copyFallback(text) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
+            // iOS 中 textarea 需要特殊处理才能可靠选中
+            textarea.contentEditable = true;
+            textarea.readOnly = false;
             textarea.style.position = 'fixed';
-            textarea.style.top = '0';
-            textarea.style.left = '0';
-            textarea.style.width = '1px';
-            textarea.style.height = '1px';
+            textarea.style.top = '50%';
+            textarea.style.left = '50%';
+            textarea.style.width = '2px';
+            textarea.style.height = '2px';
+            textarea.style.padding = '0';
+            textarea.style.border = 'none';
+            textarea.style.outline = 'none';
+            textarea.style.boxShadow = 'none';
+            textarea.style.background = 'transparent';
+            textarea.style.fontSize = '16px'; // iOS 防止自动缩放
             textarea.style.opacity = '0';
-            textarea.setAttribute('readonly', '');
             document.body.appendChild(textarea);
 
-            // iOS 需要创建 Range 选区
-            const range = document.createRange();
-            range.selectNodeContents(textarea);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            textarea.setSelectionRange(0, text.length);
-
             try {
-                document.execCommand('copy');
+                // iOS 必须用 Selection + Range 方式选中文本
+                const range = document.createRange();
+                range.selectNodeContents(textarea);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                textarea.setSelectionRange(0, 999999);
+
+                const ok = document.execCommand('copy');
+
+                // 兜底：focus + select 再试一次
+                if (!ok) {
+                    textarea.focus();
+                    textarea.select();
+                    document.execCommand('copy');
+                }
+
+                selection.removeAllRanges();
+                document.body.removeChild(textarea);
+                return true;
             } catch (e) {
                 console.error('复制失败:', e);
+                if (textarea.parentNode) document.body.removeChild(textarea);
+                return false;
             }
-
-            selection.removeAllRanges();
-            document.body.removeChild(textarea);
         }
 
         // 下载二维码图片函数（修复版）
@@ -697,10 +807,56 @@
             }
         }
 
-        // 跳转到淘宝APP（不兜底打开网页版）
+        // 跳转到淘宝APP（兼容 Android / iOS / 鸿蒙系统）
         function openTaobaoApp(url) {
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
+
+            // tbopen:// 是淘宝官方 Deep Link，鸿蒙/安卓兼容性好
+            const tbopenUrl = `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=${encodeURIComponent(url)}`;
+            // taobao:// scheme（iOS 主要认这个）
             const taobaoScheme = `taobao://${url.replace('https://', '')}`;
-            window.location.href = taobaoScheme;
+
+            let appOpened = false;
+            const visibilityHandler = function() {
+                if (document.hidden) { appOpened = true; }
+            };
+            document.addEventListener('visibilitychange', visibilityHandler);
+
+            // 尝试唤起 APP
+            function tryScheme(schemeUrl) {
+                if (isAPK) {
+                    // APK 环境：Java shouldOverrideUrlLoading 会拦截 scheme
+                    window.location.href = schemeUrl;
+                } else if (isIOS) {
+                    // iOS Safari：必须用 window.location.href 直接跳转，iframe 会被拦截
+                    window.location.href = schemeUrl;
+                } else {
+                    // 安卓浏览器：用隐藏 iframe 避免页面导航错误
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = schemeUrl;
+                    document.body.appendChild(iframe);
+                    setTimeout(function() {
+                        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                    }, 3000);
+                }
+            }
+
+            if (isIOS) {
+                // iOS：用 taobao:// scheme 直接唤起
+                tryScheme(taobaoScheme);
+            } else {
+                // 安卓/鸿蒙/APK：优先 tbopen://，失败回落 taobao://
+                tryScheme(tbopenUrl);
+                setTimeout(function() {
+                    if (appOpened) {
+                        document.removeEventListener('visibilitychange', visibilityHandler);
+                        return;
+                    }
+                    tryScheme(taobaoScheme);
+                }, 1000);
+            }
         }
 
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
@@ -790,7 +946,7 @@
             });
         }
 
-        async function generateQRCodes(quantity, fixedString, autoLabel) {
+        async function generateQRCodes(quantity, fixedString, autoLabel, btnKey) {
             // 获取用户输入的淘口令/分享文本和自定义文字
             const productLink = document.getElementById('productLink').value.trim();
             const userCustomText = document.getElementById('customText').value.trim();
@@ -833,8 +989,14 @@
                     colorLight: "#FFFFFF"
                 });
 
-                // 自动复制到剪贴板
+                // 自动复制到剪贴板（iOS 中异步操作后可能失败，用户可用"复制链接"按钮手动复制）
+                window._lastGeneratedLink = fullContent;
                 copyToClipboard(fullContent);
+
+                // 增加按钮使用次数
+                if (btnKey) {
+                    incrementUsageCount(btnKey);
+                }
 
                 // 拼接二维码上方文字：自定义文字 + 两个空格 + 自动标签
                 let displayText = autoLabel || '';
@@ -845,11 +1007,6 @@
                 // 创建一个用于显示结果的容器
                 const container = document.createElement('div');
                 container.className = 'qr-code-container';
-
-                // 创建复制成功提示
-                const contentInfo = document.createElement('div');
-                contentInfo.style.margin = '10px 0';
-                contentInfo.innerHTML = '<span class="copy-success">✓ 生成二维码内容已复制到剪贴板</span>';
 
                 // 长按保存提示
                 const saveTip = document.createElement('div');
@@ -900,12 +1057,11 @@
                 qrRight.className = 'qr-code-right';
 
                 actionButtons.innerHTML = `
-                    <button onclick="copyToClipboard('${fullContent}'); this.nextElementSibling.style.display='inline'; setTimeout(() => this.nextElementSibling.style.display='none', 2000)">复制链接</button>
+                    <button onclick="if(copyToClipboard(window._lastGeneratedLink)){this.nextElementSibling.style.display='inline';setTimeout(()=>this.nextElementSibling.style.display='none',2000)}else{alert('复制失败，请长按下方链接文本手动复制')}">复制链接</button>
                     <span class="copy-success">✓ 已复制</span>
-                    <button onclick="openTaobaoApp('${fullContent}')">一键跳转淘宝APP</button>
+                    <button onclick="openTaobaoApp(window._lastGeneratedLink)">一键跳转淘宝APP</button>
                 `;
 
-                qrRight.appendChild(contentInfo);
                 qrRight.appendChild(saveTip);
                 qrRight.appendChild(actionButtons);
 
