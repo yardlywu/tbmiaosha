@@ -1029,7 +1029,7 @@ function openDianTaoApp(url) {
 function openTaoteApp(url) {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
-
+    
     function tryScheme(schemeUrl) {
         if (isAPK) {
             window.location.href = schemeUrl;
@@ -1047,33 +1047,69 @@ function openTaoteApp(url) {
     }
 
     if (isAPK) {
+        // Android：使用tbopen协议唤起淘特
         try {
+            // 从URL中提取商品ID或页面参数
             const urlObj = new URL(url);
-            const intentUrl = 'intent://' + urlObj.host + urlObj.pathname + urlObj.search +
-                '#Intent;scheme=https;package=com.taobao.tejia;S.browser_fallback_url=' +
-                encodeURIComponent(url) + ';end';
-            tryScheme(intentUrl);
+            const params = new URLSearchParams(urlObj.search);
+            const itemId = params.get('id') || params.get('itemId') || '';
+            
+            // 淘特支持的几种唤端方式
+            const schemes = [
+                // 方式1: 使用tbopen协议（淘宝系通用）
+                `tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&module=h5&bootImage=0&source=taote&url=${encodeURIComponent(url)}`,
+                // 方式2: 使用淘特自有协议（如果支持）
+                `taote://open?url=${encodeURIComponent(url)}`,
+                // 方式3: Intent方式（备选）
+                `intent://${urlObj.host}${urlObj.pathname}${urlObj.search}#Intent;package=com.taobao.tejia;scheme=https;end`
+            ];
+            
+            // 依次尝试
+            tryScheme(schemes[0]);
+            
+            // 1秒后如果未唤起，尝试备选方案
+            setTimeout(() => {
+                tryScheme(schemes[1]);
+            }, 1000);
+            
         } catch (e) {
+            // 解析失败，使用intent方式
+            try {
+                const intentUrl = `intent://platformapi/startapp?appId=10000001&url=${encodeURIComponent(url)}#Intent;package=com.taobao.tejia;scheme=alipays;end`;
+                tryScheme(intentUrl);
+            } catch(err) {
+                copyToClipboard(url);
+                showToast('链接已复制，请在淘特内粘贴打开');
+            }
+        }
+    } else if (isIOS) {
+        // iOS：尝试使用Universal Link或淘宝协议
+        try {
+            // 淘宝系的Universal Link（需要在APP内配置）
+            const universalLink = `https://m.taobao.com/tbopen/index.html?action=ali.open.nav&module=h5&bootImage=0&source=taote&url=${encodeURIComponent(url)}`;
+            tryScheme(universalLink);
+            
+            // 如果Universal Link失败，1.5秒后fallback到复制
+            setTimeout(() => {
+                copyToClipboard(url);
+                showToast('如果未打开，请手动复制链接到淘特打开');
+            }, 1500);
+        } catch(e) {
             copyToClipboard(url);
             showToast('链接已复制，请在淘特内粘贴打开');
         }
-    } else if (isIOS) {
-        // iOS无有效唤端scheme，只能复制
-        copyToClipboard(url);
-        showToast('链接已复制，请在淘特内粘贴打开');
     } else {
-        //电脑端
+        // 电脑端
         copyToClipboard(url);
-        showToast('链接已复制');
+        showToast('链接已复制，请用手机打开淘特APP');
     }
 }
-
 
 // 一键跳转UC浏览器 com.UCMobile
 function openUCBrowserApp(url) {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
-
+    
     function tryScheme(schemeUrl) {
         if (isAPK) {
             window.location.href = schemeUrl;
@@ -1091,27 +1127,69 @@ function openUCBrowserApp(url) {
     }
 
     if (isAPK) {
-        //安卓：intent直接唤起UC并加载目标url
+        // Android：使用多种方式尝试唤起UC
         try {
-            var urlObj = new URL(url);
-            var intentUrl = 'intent://' + urlObj.host + urlObj.pathname + urlObj.search +
-                '#Intent;scheme=https;package=com.UCMobile;S.browser_fallback_url=' +
-                encodeURIComponent(url) + ';end';
+            const urlObj = new URL(url);
+            
+            // 方式1: 使用UC的intent方式（修正scheme）
+            const intentUrl = `intent://${urlObj.host}${urlObj.pathname}${urlObj.search}#Intent;package=com.UCMobile;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;scheme=https;end`;
+            
+            // 方式2: 使用UC自定义协议
+            const ucScheme = `ucbrowser://${urlObj.host}${urlObj.pathname}${urlObj.search}`;
+            
+            // 方式3: 使用支付宝的UC唤端方式（备选）
+            const alipayUc = `alipays://platformapi/startapp?appId=20000172&url=${encodeURIComponent(url)}`;
+            
+            // 依次尝试
             tryScheme(intentUrl);
+            
+            // 如果1秒后没反应，尝试UC协议
+            setTimeout(() => {
+                tryScheme(ucScheme);
+            }, 1000);
+            
+            // 如果2秒后还没反应，尝试支付宝中转
+            setTimeout(() => {
+                tryScheme(alipayUc);
+            }, 2000);
+            
         } catch (e) {
             copyToClipboard(url);
             showToast('链接已复制，请复制到UC浏览器打开');
         }
     } else if (isIOS) {
-        //iOS无UC唤起scheme，只能复制
-        copyToClipboard(url);
-        showToast('链接已复制，请复制到UC浏览器打开');
+        // iOS：尝试UC的Universal Link或自定义协议
+        try {
+            const urlObj = new URL(url);
+            // UC浏览器的Universal Link（需要在UC APP内配置）
+            const universalLink = `https://m.uc.cn/open?url=${encodeURIComponent(url)}`;
+            
+            // UC iOS自定义协议（如果有）
+            const ucScheme = `ucbrowser://${urlObj.host}${urlObj.pathname}${urlObj.search}`;
+            
+            tryScheme(universalLink);
+            
+            // 如果Universal Link失败，尝试自定义协议
+            setTimeout(() => {
+                tryScheme(ucScheme);
+            }, 1000);
+            
+            // 最终fallback到复制
+            setTimeout(() => {
+                copyToClipboard(url);
+                showToast('请复制链接到UC浏览器打开');
+            }, 2000);
+        } catch(e) {
+            copyToClipboard(url);
+            showToast('链接已复制，请复制到UC浏览器打开');
+        }
     } else {
-        //电脑端，复制链接
+        // 电脑端
         copyToClipboard(url);
-        showToast('链接已复制');
+        showToast('链接已复制，请用手机打开UC浏览器');
     }
 }
+
 
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
         function createQRCodeWithText(qrCodeDataURL, customText) {
