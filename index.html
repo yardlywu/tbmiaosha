@@ -1025,7 +1025,7 @@ function openDianTaoApp(url) {
     }
 }
 
-// 一键跳转淘特（备选方案 - 使用tbopen协议）
+// 一键跳转淘特（淘宝特价版）com.taobao.tejia
 function openTaoteApp(url) {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
@@ -1047,15 +1047,17 @@ function openTaoteApp(url) {
     }
 
     if (isAPK) {
+        // APK环境：复制链接
         copyToClipboard(url);
         showToast('链接已复制，请在淘特中粘贴使用');
     } else if (isIOS) {
+        // iOS：复制链接
         copyToClipboard(url);
         showToast('链接已复制，请在淘特中粘贴使用');
     } else {
-        // 安卓浏览器：使用tbopen协议（淘宝系通用）
+        // 安卓浏览器：使用多种方式尝试
         try {
-            // 方式1: tbopen协议
+            // 方式1: 使用tbopen协议（淘宝系通用，成功率最高）
             var tbScheme = 'tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&module=h5&bootImage=0&source=taote&url=' + encodeURIComponent(url);
             tryScheme(tbScheme);
             
@@ -1065,13 +1067,27 @@ function openTaoteApp(url) {
                 tryScheme(alipayScheme);
             }, 1000);
             
-            // 如果2秒后还没反应，复制链接
+            // 如果2秒后还没反应，尝试方式3: 直接intent
+            setTimeout(function() {
+                try {
+                    var urlObj = new URL(url);
+                    var intentUrl = 'intent://' + urlObj.host + urlObj.pathname + urlObj.search +
+                        '#Intent;scheme=https;package=com.taobao.tejia;S.browser_fallback_url=' +
+                        encodeURIComponent(url) + ';end';
+                    tryScheme(intentUrl);
+                } catch(e) {
+                    // 忽略
+                }
+            }, 2000);
+            
+            // 如果3秒后还没反应，复制链接
             setTimeout(function() {
                 copyToClipboard(url);
                 showToast('链接已复制，请在淘特中粘贴使用');
-            }, 2000);
+            }, 3000);
             
         } catch(e) {
+            // 解析失败，复制链接
             copyToClipboard(url);
             showToast('链接已复制，请在淘特中粘贴使用');
         }
