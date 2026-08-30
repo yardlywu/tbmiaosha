@@ -932,7 +932,7 @@
             }, 1000);
         }
 
-    // 跳转天猫APP（com.tmall.wireless）
+        // 跳转天猫APP（com.tmall.wireless）
         function openTmallApp(url) {
             const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
             const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
@@ -980,31 +980,6 @@
                 }
             }
         }
-
-
-    if (isIOS) {
-        tryScheme(tmallScheme);
-    } else {
-        //安卓优先完整Intent，尽可能触发系统弹窗
-        tryScheme(tmallIntent);
-        setTimeout(function() {
-            if (appOpened) {
-                document.removeEventListener('visibilitychange', visibilityHandler);
-                return;
-            }
-            //Intent失败，尝试原生tmall://
-            tryScheme(tmallScheme);
-            setTimeout(function(){
-                if(appOpened){
-                    document.removeEventListener('visibilitychange', visibilityHandler);
-                    return;
-                }
-                // 重点：这里删掉 tryScheme(tbopenUrl); 不再执行，禁止跳淘宝！
-                document.removeEventListener('visibilitychange', visibilityHandler);
-            },1000);
-        },1000);
-    }
-}
 
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
         function createQRCodeWithText(qrCodeDataURL, customText) {
