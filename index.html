@@ -231,6 +231,8 @@
         .action-buttons button:nth-child(4) { background: #c08a5a; color: #fff; }
         .action-buttons button:nth-child(5) { background: #b5504a; color: #fff; }
         .action-buttons button:nth-child(6) { background: #a865c9; color: #fff; }
+        .action-buttons button:nth-child(7) { background: #3478e8; color:#fff; }
+        .action-buttons button:nth-child(8) { background: #f9e79f; color:#222; }
         .action-buttons .copy-success {
             color: #6a9a7a; font-size: 12px; line-height: 38px; display: none;
         }
@@ -1023,6 +1025,94 @@ function openDianTaoApp(url) {
     }
 }
 
+// 一键跳转淘特（淘宝特价版）com.taobao.tejia
+function openTaoteApp(url) {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
+
+    function tryScheme(schemeUrl) {
+        if (isAPK) {
+            window.location.href = schemeUrl;
+        } else if (isIOS) {
+            window.location.href = schemeUrl;
+        } else {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = schemeUrl;
+            document.body.appendChild(iframe);
+            setTimeout(function () {
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+            }, 3000);
+        }
+    }
+
+    if (isAPK) {
+        try {
+            const urlObj = new URL(url);
+            const intentUrl = 'intent://' + urlObj.host + urlObj.pathname + urlObj.search +
+                '#Intent;scheme=https;package=com.taobao.tejia;S.browser_fallback_url=' +
+                encodeURIComponent(url) + ';end';
+            tryScheme(intentUrl);
+        } catch (e) {
+            copyToClipboard(url);
+            showToast('链接已复制，请在淘特内粘贴打开');
+        }
+    } else if (isIOS) {
+        // iOS无有效唤端scheme，只能复制
+        copyToClipboard(url);
+        showToast('链接已复制，请在淘特内粘贴打开');
+    } else {
+        //电脑端
+        copyToClipboard(url);
+        showToast('链接已复制');
+    }
+}
+
+
+// 一键跳转UC浏览器 com.UCMobile
+function openUCBrowserApp(url) {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAPK = !!window.NativeBridge || (window.Android && typeof window.Android !== 'undefined');
+
+    function tryScheme(schemeUrl) {
+        if (isAPK) {
+            window.location.href = schemeUrl;
+        } else if (isIOS) {
+            window.location.href = schemeUrl;
+        } else {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = schemeUrl;
+            document.body.appendChild(iframe);
+            setTimeout(function () {
+                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+            }, 3000);
+        }
+    }
+
+    if (isAPK) {
+        //安卓：intent直接唤起UC并加载目标url
+        try {
+            var urlObj = new URL(url);
+            var intentUrl = 'intent://' + urlObj.host + urlObj.pathname + urlObj.search +
+                '#Intent;scheme=https;package=com.UCMobile;S.browser_fallback_url=' +
+                encodeURIComponent(url) + ';end';
+            tryScheme(intentUrl);
+        } catch (e) {
+            copyToClipboard(url);
+            showToast('链接已复制，请复制到UC浏览器打开');
+        }
+    } else if (isIOS) {
+        //iOS无UC唤起scheme，只能复制
+        copyToClipboard(url);
+        showToast('链接已复制，请复制到UC浏览器打开');
+    } else {
+        //电脑端，复制链接
+        copyToClipboard(url);
+        showToast('链接已复制');
+    }
+}
+
         // 创建带文字的二维码图片（紧凑布局，减少文字区域上下空白）
         function createQRCodeWithText(qrCodeDataURL, customText) {
             return new Promise((resolve) => {
@@ -1227,6 +1317,8 @@ function openDianTaoApp(url) {
                     <button onclick="openAlipayApp(window._lastGeneratedLink)">一键跳转支付宝</button>
                     <button onclick="openTmallApp(window._lastGeneratedLink)">一键跳转天猫</button>
                     <button onclick="openDianTaoApp(window._lastGeneratedLink)">一键跳转点淘</button>
+                    <button onclick="openTaoteApp(window._lastGeneratedLink)">一键跳转淘特</button>
+                    <button onclick="openUCBrowserApp(window._lastGeneratedLink)">一键跳转UC</button>
                 `;
 
                 qrRight.appendChild(actionButtons);
