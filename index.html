@@ -1055,19 +1055,20 @@ function openTaoteApp(url) {
         copyToClipboard(url);
         showToast('链接已复制，请在淘特中粘贴使用');
     } else {
-        // 安卓浏览器：使用多种方式尝试
+        // 安卓浏览器：使用淘特自己的协议
         try {
-            // 方式1: 使用tbopen协议（淘宝系通用，成功率最高）
-            var tbScheme = 'tbopen://m.taobao.com/tbopen/index.html?action=ali.open.nav&module=h5&bootImage=0&source=taote&url=' + encodeURIComponent(url);
-            tryScheme(tbScheme);
+            // 方式1: 使用taote:// 协议（淘特专属）
+            var taoteScheme = 'taote://open?url=' + encodeURIComponent(url);
+            tryScheme(taoteScheme);
             
-            // 如果1秒后没反应，尝试方式2: alipays协议
+            // 如果1秒后没反应，尝试方式2: 使用alipays协议 + 淘特appId
             setTimeout(function() {
+                // 淘特在支付宝平台的appId可能是 10000001 或 20000167
                 var alipayScheme = 'alipays://platformapi/startapp?appId=10000001&url=' + encodeURIComponent(url);
                 tryScheme(alipayScheme);
             }, 1000);
             
-            // 如果2秒后还没反应，尝试方式3: 直接intent
+            // 如果2秒后还没反应，尝试方式3: intent方式（用正确的包名）
             setTimeout(function() {
                 try {
                     var urlObj = new URL(url);
@@ -1087,12 +1088,12 @@ function openTaoteApp(url) {
             }, 3000);
             
         } catch(e) {
-            // 解析失败，复制链接
             copyToClipboard(url);
             showToast('链接已复制，请在淘特中粘贴使用');
         }
     }
 }
+
 
 // 一键跳转UC浏览器 com.UCMobile
 function openUCBrowserApp(url) {
