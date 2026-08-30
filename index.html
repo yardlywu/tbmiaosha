@@ -1046,9 +1046,8 @@ function openTaoteApp(url) {
         }
     }
 
-    // 和天猫、点淘一样的逻辑
     if (isAPK) {
-        // APK环境：直接复制链接，提示用户
+        // APK环境：复制链接
         copyToClipboard(url);
         showToast('链接已复制，请在淘特中粘贴使用');
     } else if (isIOS) {
@@ -1056,17 +1055,34 @@ function openTaoteApp(url) {
         copyToClipboard(url);
         showToast('链接已复制，请在淘特中粘贴使用');
     } else {
-        // 安卓浏览器：用intent方式尝试
+        // 安卓浏览器：使用alipays协议唤起淘特（参考支付宝的写法）
         try {
-            var urlObj = new URL(url);
-            var intentUrl = 'intent://' + urlObj.host + urlObj.pathname + urlObj.search +
-                '#Intent;scheme=https;package=com.taobao.tejia;S.browser_fallback_url=' +
-                encodeURIComponent(url) + ';end';
-            tryScheme(intentUrl);
+            // 方式1: 使用alipays协议（阿里系APP通用）
+            var alipayScheme = 'alipays://platformapi/startapp?appId=10000001&url=' + encodeURIComponent(url);
+            tryScheme(alipayScheme);
+            
+            // 如果1秒后没反应，尝试方式2: intent方式
+            setTimeout(function() {
+                try {
+                    var urlObj = new URL(url);
+                    var intentUrl = 'intent://' + urlObj.host + urlObj.pathname + urlObj.search +
+                        '#Intent;scheme=https;package=com.taobao.tejia;S.browser_fallback_url=' +
+                        encodeURIComponent(url) + ';end';
+                    tryScheme(intentUrl);
+                } catch(e) {
+                    // 忽略
+                }
+            }, 1000);
+            
+            // 如果2秒后还没反应，复制链接
+            setTimeout(function() {
+                copyToClipboard(url);
+                showToast('链接已复制，请在淘特中粘贴使用');
+            }, 2000);
+            
         } catch(e) {
-            // 解析失败，回退到启动淘特
+            // 解析失败，复制链接
             copyToClipboard(url);
-            tryScheme('taote://');
             showToast('链接已复制，请在淘特中粘贴使用');
         }
     }
