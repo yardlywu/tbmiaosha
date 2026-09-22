@@ -537,7 +537,7 @@
         }
         // ====== 扫码功能结束 ======
 
-      // CORS 代理列表（并行竞争，谁先返回用谁）
+ // CORS 代理列表（并行竞争，谁先返回用谁）
 const CORS_PROXIES = [
     (url) => `https://proxy.cors.sh/${url}`,
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
@@ -639,19 +639,19 @@ async function resolveShortUrl(shortUrl) {
 }
 // 通过淘口令/分享文本解析获取商品ID（异步，需请求网络）
 async function parseItemIdFromShareText(text) {
-    // 0.极速路径：匹配淘口令￥xxx￥，本地直接提取，不走网络
-    const tkReg = /￥([^￥]+)￥/;
-    const tkMatch = text.match(tkReg);
-    if(tkMatch?.[1]){
-        const fakeTkUrl = `https://m.tb.cn/h.${tkMatch[1]}`;
-        const idFromTk = extractItemIdFromUrl(fakeTkUrl);
-        if(idFromTk) return idFromTk;
-    }
     // 0. 极速路径：输入本身包含商品链接，直接本地提取（零网络）
     const directId = extractItemIdFromUrl(text);
     if (directId) return directId;
-    // 1. 提取短链
+
+    // 兼容淘口令正则，支持带空格的新版淘口令
+    const tkReg = /￥([^￥]+)￥/;
+    const tkMatch = text.match(tkReg);
     let shortUrl = extractShortUrl(text);
+
+    // 如果文本里只有淘口令、没有短链，自动构造淘口令解析短链
+    if (!shortUrl && tkMatch?.[1]) {
+        shortUrl = `https://m.tb.cn/h.${tkMatch[1]}`;
+    }
     if (!shortUrl) {
         const token = text.replace(/[^\w]/g, '');
         if (!token) return null;
@@ -721,6 +721,7 @@ function extractProductId(productLink) {
     }
     return null;
 }
+
 
         // 复制文本到剪贴板（兼容iOS Safari + Android WebView）
         // 返回 true=成功, false=失败
