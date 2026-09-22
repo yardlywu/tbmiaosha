@@ -539,13 +539,9 @@
 
 // CORS 代理列表（并行竞争，谁先返回用谁）
 const CORS_PROXIES = [
+    (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    (url) => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
-    (url) => `https://cors.eu.org/${url}`,
-    (url) => `https://cors-anywhere.herokuapp.com/${url}`,
-    (url) => `https://thingproxy.freeboard.io/fetch/${url}`,
-    (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    (url) => `https://proxy.cors.sh/${url}`
 ];
 
 
