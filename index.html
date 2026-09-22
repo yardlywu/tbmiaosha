@@ -309,7 +309,7 @@
             <button onclick="generateQRCodes(40000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=74994&deliveryId=74994&sceneId=7506&itemIds=', '4万②', '4w2')" data-btn-key="4w2">4万肥料②<span class="usage-badge zero">0</span></button>
             <button onclick="generateQRCodes(50000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=69029&deliveryId=69029&sceneId=7310&itemIds=', '5万①', '5w1')" data-btn-key="5w1">5万肥料①<span class="usage-badge zero">0</span></button>
             <button onclick="generateQRCodes(50000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=70424&deliveryId=70424&sceneId=7506&itemIds=', '5万②', '5w2')" data-btn-key="5w2">5万肥料②<span class="usage-badge zero">0</span></button>
-            <button onclick="generateQRCodes(60000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&spma=mspd&spmb=qdmsxiadan&prismTrace=68206&deliveryId=68206&sceneId=7506&itemIds=', '6万', '6w')" data-btn-key="6w">6万肥料<span class="usage-badge zero">0</span></button>
+            <button onclick="generateQRCodes(100000, 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tbms-cooperation/home?ut_sk=1.YFLdTc0p40gDAFHpvqTxEGMf_21380790_1789988154025.Copy.tao_feedbackscreenshare&sp_tk=YzB0bVRnc01jQzM%3D&deliveryId=75085&disableProgress=true&_tbScancodeApproach_=scan&disableNav=YES&sceneId=7980&scene=wt&cpp=1&implId=other_1343_3235046_101028_0&hd_from_id=100085&shareurl=true&asac=2A24229CRW8AFXDCFEMN20&forceThemis=true&x-sec=wua&un_site=0&originQueryId=214784df17886086691852153e1172&share_crt_v=1&spm=farm.13840689.tasklist-pentaprism.101028&app=macos_safari&x-preload=true&taskhubType=taskhubcc&ttid=201200%40taobao_iphone_9.23.0&x-ssr=true&short_name=h.8pHdg09&spma=farm&sm=a0a262&sourceType=other&prismTrace=750856&spmb=46023237&bxsign=tcd7iVzE2v3DbWtnZTKc8prqOcocpxnMIURXFUaMUEFLsqbqRQBFjK9ZPlXrAIof8EfAzhm8T_DmQryS6vcIuHHxrfKOGUrtmnPnqg-_cxR8gI&itemIds=', '10万', '10w')" data-btn-key="10w">10万肥料<span class="usage-badge zero">0</span></button>
             <button onclick="generateQRCodes('签到元宝', 'https://pages-fast.m.taobao.com/wow/z/app/ltao-fe/tjb-ssr/home?x-ssr=true&pha_manifest=default&disableNav=YES&x-preload=true&disableProgress=true&disableRedirect=tr&x-sec=wua&asac=2A24229CRW8AFXDCFEMN20&spma=mspd&spmb=qdmsxiadan&prismTrace=90243&activityId=100129&awardIndex=1&cpcExpireSecond=259200&deliveryId=90243&fromToken=zK2zNZX1xSW16xGBQAfB6zilgJ0UMUOU6UQU0UaUZUGv&implId=other_1314_0_90243_0&samplingRate=10&sceneId=9267&hd_from_id=100129&mediafrom=&spm=hbqd5.30348439.c1.d1&itemIds=', '签到元宝', '签到元宝')" data-btn-key="签到元宝">签到元宝<span class="usage-badge zero">0</span></button>
             <button onclick="generateQRCodes('bbncdh', 'https://pages-g.m.taobao.com/wow/z/app/detail-next/item/index?&sourceChannel=bbnc&xxc=farm&umpChannel=bbncdh&spm=farm.45617361.c1.d1&x-ssr=true&id=', '农场兑换', '')">bbncdh</button>
         </div>
@@ -537,190 +537,36 @@
         }
         // ====== 扫码功能结束 ======
 
-        // CORS 代理列表（并行竞争，谁先返回用谁）
-        const CORS_PROXIES = [
-            (url) => `https://proxy.cors.sh/${url}`,
-            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-            (url) => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-            (url) => `https://proxy.corsfix.com/?${url}`,
-            (url) => `https://api.cors.syrins.tech/?url=${encodeURIComponent(url)}`,
-            (url) => `https://api.cors.lol/?url=${encodeURIComponent(url)}`,
-        ];
+       // 通过 CORS 代理请求 URL，返回响应文本【优化竞速+成功后立刻取消其他请求】
+async function fetchWithProxy(targetUrl) {
+    const tasks = CORS_PROXIES.map((proxyFn) => {
+        const controller = new AbortController();
+        const proxyUrl = proxyFn(targetUrl);
+        const timeoutId = setTimeout(() => controller.abort(), 2200); // 从3000→2200，缩短超时
+        const p = fetch(proxyUrl, { signal: controller.signal })
+            .then(resp => {
+                clearTimeout(timeoutId);
+                if (resp.ok) return resp.text();
+                throw new Error('bad status');
+            })
+            .then(text => {
+                if (text && text.length > 50) return text;
+                throw new Error('too short');
+            })
+            .catch(e => { throw e; });
+        return { p, controller };
+    });
+    try {
+        const resultText = await Promise.any(tasks.map(t => t.p));
+        // ✅ 拿到第一个成功结果，立刻终止其余所有代理请求
+        tasks.forEach(t => t.controller.abort());
+        return resultText;
+    } catch (e) {
+        tasks.forEach(t => t.controller.abort());
+        return null;
+    }
+}
 
-        // 从分享文本中提取短链
-        function extractShortUrl(text) {
-            const m = text.match(/https?:\/\/[^\s，。￥¥₳【】\]\[]+/);
-            return m ? m[0] : null;
-        }
-
-        // 通过 CORS 代理请求 URL，返回响应文本
-        async function fetchWithProxy(targetUrl) {
-            // 并行请求所有代理，谁先返回就用谁的
-            const promises = CORS_PROXIES.map((proxyFn, i) => {
-                const proxyUrl = proxyFn(targetUrl);
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                return fetch(proxyUrl, { signal: controller.signal })
-                    .then(resp => {
-                        clearTimeout(timeoutId);
-                        if (resp.ok) return resp.text();
-                        throw new Error('bad status');
-                    })
-                    .then(text => {
-                        if (text && text.length > 50) return text;
-                        throw new Error('too short');
-                    })
-                    .catch(e => { throw e; });
-            });
-            try {
-                return await Promise.any(promises);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        // 从 URL 中提取商品ID（零网络，毫秒级）
-        function extractItemIdFromUrl(url) {
-            // 按最常见的格式优先匹配（id= 至少7位数字避免匹配短值如 YES）
-            const m = url.match(/[?&]id=(\d{7,})/)          // id= 后至少7位数字
-                || url.match(/topIds=(\d+)/)                 // 淘宝分享页的 topIds 参数
-                || url.match(/itemIds=(\d+)/)
-                || url.match(/\/i(\d+)\.htm/)
-                || url.match(/\/(\d+)\.html?/);
-            return m ? m[1] : null;
-        }
-
-        // 通过短链直接跟随重定向获取最终URL（快路径，不走代理）
-        async function resolveShortUrl(shortUrl) {
-            // 两种方法并行，谁先成功返回用谁
-            try {
-                return await Promise.any([
-                    // 方法1：标准 fetch + redirect follow + body 提取
-                    (async () => {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 5000);
-                        const resp = await fetch(shortUrl, {
-                            redirect: 'follow',
-                            signal: controller.signal,
-                        });
-                        clearTimeout(timeoutId);
-                        if (resp.url && resp.url !== shortUrl) return resp.url;
-                        // e.tb.cn 返回 200 HTML，直接从 body 提取
-                        const body = await resp.text();
-                        if (body && body.length > 200) {
-                            const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
-                            if (urlMatch) return urlMatch[1];
-                            const topMatch = body.match(/topIds=(\d+)/);
-                            if (topMatch) return 'https://item.taobao.com/item.htm?id=' + topMatch[1];
-                        }
-                        throw new Error('no redirect or body match');
-                    })(),
-                    // 方法2：XMLHttpRequest HEAD
-                    new Promise((resolve, reject) => {
-                        const xhr = new XMLHttpRequest();
-                        xhr.timeout = 3000;
-                        xhr.onreadystatechange = function() {
-                            if (xhr.readyState === 4) {
-                                if (xhr.responseURL && xhr.responseURL !== shortUrl) {
-                                    resolve(xhr.responseURL);
-                                } else {
-                                    reject(new Error('xhr no redirect'));
-                                }
-                            }
-                        };
-                        xhr.onerror = () => reject(new Error('xhr error'));
-                        xhr.ontimeout = () => reject(new Error('xhr timeout'));
-                        xhr.open('HEAD', shortUrl, true);
-                        xhr.send();
-                    }),
-                ]);
-            } catch (e) {
-                return null;
-            }
-        }
-
-        // 通过淘口令/分享文本解析获取商品ID（异步，需请求网络）
-        async function parseItemIdFromShareText(text) {
-            // 0. 极速路径：输入本身包含商品链接，直接本地提取（零网络）
-            const directId = extractItemIdFromUrl(text);
-            if (directId) return directId;
-
-            // 1. 提取短链
-            let shortUrl = extractShortUrl(text);
-            if (!shortUrl) {
-                const token = text.replace(/[^\w]/g, '');
-                if (!token) return null;
-                shortUrl = `https://m.tb.cn/h.${token}`;
-            }
-            console.log('解析短链:', shortUrl);
-
-            // 2. 快路径+慢路径并行，谁先成功用谁
-            try {
-                return await Promise.any([
-                    // 快路径：直接跟随重定向
-                    (async () => {
-                        const resolvedUrl = await resolveShortUrl(shortUrl);
-                        console.log('重定向结果:', resolvedUrl);
-                        if (!resolvedUrl) throw new Error('resolve failed');
-                        const id = extractItemIdFromUrl(resolvedUrl);
-                        if (!id) throw new Error('no id in resolved url');
-                        return id;
-                    })(),
-                    // 慢路径：CORS 代理获取完整 HTML
-                    (async () => {
-                        const body = await fetchWithProxy(shortUrl);
-                        console.log('代理结果长度:', body ? body.length : 0);
-                        if (!body) throw new Error('proxy failed');
-                        // 提取 var url = '...'
-                        const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
-                        if (urlMatch) {
-                            const id = extractItemIdFromUrl(urlMatch[1]);
-                            if (id) return id;
-                        }
-                        // 兜底：从 HTML 直接匹配（含 topIds）
-                        const m = body.match(/topIds=(\d+)/) || body.match(/itemIds=(\d+)/) || body.match(/[?&]id=(\d{7,})/);
-                        if (m) return m[1];
-                        throw new Error('no id in proxy body');
-                    })(),
-                ]);
-            } catch (e) {
-                console.error('所有解析路径均失败');
-                return null;
-            }
-        }
-
-        // 从商品链接中提取商品ID的函数（保留原逻辑，作为兜底）
-        function extractProductId(productLink) {
-            let productId = '';
-
-            // 方法1：匹配 itemIds= 参数
-            const itemIdsMatch = productLink.match(/itemIds=(\d+)/);
-            if (itemIdsMatch) {
-                productId = itemIdsMatch[1];
-                return productId;
-            }
-            // 方法2：匹配 id= 参数
-            const idMatch = productLink.match(/id=(\d+)/);
-            if (idMatch) {
-                productId = idMatch[1];
-                return productId;
-            }
-
-            // 方法3：匹配 /i数字.htm 格式
-            const iMatch = productLink.match(/\/i(\d+)\.htm/);
-            if (iMatch) {
-                productId = iMatch[1];
-                return productId;
-            }
-            // 如果以上方法都没有匹配到，尝试从URL中提取数字ID
-            const numberMatch = productLink.match(/\/(\d+)\.html?/);
-            if (numberMatch) {
-                productId = numberMatch[1];
-                return productId;
-            }
-
-            return null;
-        }
 
         // 复制文本到剪贴板（兼容iOS Safari + Android WebView）
         // 返回 true=成功, false=失败
