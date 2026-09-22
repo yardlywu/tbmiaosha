@@ -639,55 +639,55 @@
             }
         }
 
-        // 通过淘口令/分享文本解析获取商品ID（异步，需请求网络）
-        async function parseItemIdFromShareText(text) {
-            // 0. 极速路径：输入本身包含商品链接，直接本地提取（零网络）
-            const directId = extractItemIdFromUrl(text);
-            if (directId) return directId;
+       async function parseItemIdFromShareText(text) {
+    // 0. 极速路径：输入本身包含商品链接，直接本地提取（零网络）
+    const directId = extractItemIdFromUrl(text);
+    if (directId) {
+        console.log('✅ 本地直接提取到ID:', directId);
+        return directId;
+    }
 
-            // 1. 提取短链
-            let shortUrl = extractShortUrl(text);
-            if (!shortUrl) {
-                const token = text.replace(/[^\w]/g, '');
-                if (!token) return null;
-                shortUrl = `https://m.tb.cn/h.${token}`;
-            }
-            console.log('解析短链:', shortUrl);
+    // 1. 提取短链
+    let shortUrl = extractShortUrl(text);
+    if (!shortUrl) {
+        const token = text.replace(/[^\w]/g, '');
+        if (!token) return null;
+        shortUrl = `https://m.tb.cn/h.${token}`;
+    }
+    console.log('🔗 提取到的短链:', shortUrl);
 
-            // 2. 快路径+慢路径并行，谁先成功用谁
-            try {
-                return await Promise.any([
-                    // 快路径：直接跟随重定向
-                    (async () => {
-                        const resolvedUrl = await resolveShortUrl(shortUrl);
-                        console.log('重定向结果:', resolvedUrl);
-                        if (!resolvedUrl) throw new Error('resolve failed');
-                        const id = extractItemIdFromUrl(resolvedUrl);
-                        if (!id) throw new Error('no id in resolved url');
-                        return id;
-                    })(),
-                    // 慢路径：CORS 代理获取完整 HTML
-                    (async () => {
-                        const body = await fetchWithProxy(shortUrl);
-                        console.log('代理结果长度:', body ? body.length : 0);
-                        if (!body) throw new Error('proxy failed');
-                        // 提取 var url = '...'
-                        const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
-                        if (urlMatch) {
-                            const id = extractItemIdFromUrl(urlMatch[1]);
-                            if (id) return id;
-                        }
-                        // 兜底：从 HTML 直接匹配（含 topIds）
-                        const m = body.match(/topIds=(\d+)/) || body.match(/itemIds=(\d+)/) || body.match(/[?&]id=(\d{7,})/);
-                        if (m) return m[1];
-                        throw new Error('no id in proxy body');
-                    })(),
-                ]);
-            } catch (e) {
-                console.error('所有解析路径均失败');
-                return null;
-            }
-        }
+    // 2. 快路径+慢路径并行，谁先成功用谁
+    try {
+        return await Promise.any([
+            (async () => {
+                const resolvedUrl = await resolveShortUrl(shortUrl);
+                console.log('✅ 重定向结果:', resolvedUrl);
+                if (!resolvedUrl) throw new Error('resolve failed');
+                const id = extractItemIdFromUrl(resolvedUrl);
+                console.log('✅ 从重定向URL提取ID:', id);
+                if (!id) throw new Error('no id in resolved url');
+                return id;
+            })(),
+            (async () => {
+                const body = await fetchWithProxy(shortUrl);
+                console.log('✅ 代理返回长度:', body ? body.length : 0);
+                if (!body) throw new Error('proxy failed');
+                const urlMatch = body.match(/var\s+url\s*=\s*'([^']+)'/);
+                if (urlMatch) {
+                    const id = extractItemIdFromUrl(urlMatch[1]);
+                    if (id) return id;
+                }
+                const m = body.match(/topIds=(\d+)/) || body.match(/itemIds=(\d+)/) || body.match(/[?&]id=(\d{7,})/);
+                if (m) return m[1];
+                throw new Error('no id in proxy body');
+            })(),
+        ]);
+    } catch (e) {
+        console.error('❌ 所有解析路径均失败:', e);
+        return null;
+    }
+}
+
 
 // 从商品链接中提取商品ID（本地正则，兜底用）
 function extractProductId(productLink) {
