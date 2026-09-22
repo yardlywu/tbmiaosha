@@ -544,6 +544,23 @@ const CORS_PROXIES = [
     (url) => `https://proxy.cors.sh/${url}`
 ];
 
+async function fetchWithProxy(rawUrl) {
+    const tasks = CORS_PROXIES.map(buildProxy => {
+        const controller = new AbortController();
+        const p = fetch(buildProxy(rawUrl), {
+            signal: controller.signal
+        }).then(r=>{
+            if(!r.ok) throw new Error('bad status');
+            return r.text();
+        });
+        // 3秒超时自动取消
+        const timeout = setTimeout(()=>controller.abort(),3000);
+        return p.finally(()=>clearTimeout(timeout));
+    })
+    return Promise.any(tasks);
+}
+
+
 
         // 从分享文本中提取短链
         function extractShortUrl(text) {
