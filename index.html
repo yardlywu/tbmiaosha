@@ -639,8 +639,8 @@ async function fetchWithProxy(rawUrl) {
         function extractItemIdFromUrl(url) {
             // 按最常见的格式优先匹配（id= 至少7位数字避免匹配短值如 YES）
             const m = url.match(/[?&]id=(\d{7,})/)          // id= 后至少7位数字
+                || url.match(/[?&]itemIds?=(\d{7,})/)       // 兼容 itemId(单数)/itemIds(复数)，jingmi 转链页用 itemId
                 || url.match(/topIds=(\d+)/)                 // 淘宝分享页的 topIds 参数
-                || url.match(/itemIds=(\d+)/)
                 || url.match(/\/i(\d+)\.htm/)
                 || url.match(/\/(\d+)\.html?/);
             return m ? m[1] : null;
@@ -749,6 +749,12 @@ async function fetchWithProxy(rawUrl) {
         function extractProductId(productLink) {
             let productId = '';
 
+            // 方法0：匹配 jingmi 转链页的 itemId= / itemIds=（单复数都认）
+            const itemIdMatch = productLink.match(/[?&]itemIds?=(\d{7,})/);
+            if (itemIdMatch) {
+                productId = itemIdMatch[1];
+                return productId;
+            }
             // 方法1：匹配 itemIds= 参数
             const itemIdsMatch = productLink.match(/itemIds=(\d+)/);
             if (itemIdsMatch) {
