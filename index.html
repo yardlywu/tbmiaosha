@@ -948,23 +948,22 @@ async function fetchWithProxy(rawUrl) {
                     if (!appOpened) fallback();
                 }, 2500);
             } else {
-                // 安卓/荣耀(MagicOS)：intent://(指定淘宝包名) → tbopen:// → taobao:// → 复制兜底
-                // intent:// 比自定义 scheme 更可靠：直接 package=com.taobao.taobao，系统能精准定位淘宝
-                const intentUrl = 'intent://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=' + encodeURIComponent(url) +
-                    '#Intent;scheme=https;package=com.taobao.taobao;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
-                const attempts = [intentUrl, tbopenUrl, taobaoScheme];
-                let step = 0;
-                function nextAttempt() {
+                // 安卓/荣耀/鸿蒙/APK：优先 tbopen://（荣耀实测有效），失败回落 taobao://，再失败复制兜底
+                tryScheme(tbopenUrl);
+                setTimeout(function() {
                     if (appOpened) {
                         document.removeEventListener('visibilitychange', visibilityHandler);
                         return;
                     }
-                    if (step >= attempts.length) { fallback(); return; }
-                    const target = attempts[step++];
-                    tryScheme(target);
-                    setTimeout(nextAttempt, 1500);
-                }
-                nextAttempt();
+                    tryScheme(taobaoScheme);
+                    setTimeout(function() {
+                        if (appOpened) {
+                            document.removeEventListener('visibilitychange', visibilityHandler);
+                            return;
+                        }
+                        fallback();
+                    }, 1800);
+                }, 1000);
             }
         }
 
@@ -1467,11 +1466,9 @@ function openUCBrowserApp(url) {
                 if (resolved) finalUrl = resolved;
             }
             _extractedLink = finalUrl;
-            const extractedId = extractItemIdFromUrl(finalUrl) || '';
 
             resultDiv.innerHTML = `
                 <div class="extract-link-box">
-                    ${extractedId ? `<div style="font-size:14px;color:#2c6cb5;font-weight:600;margin-bottom:8px;word-break:break-all;">商品ID：<b style="color:#b5504a;">${escapeHtml(extractedId)}</b></div>` : ''}
                     <div class="extract-link" id="extractLinkDisplay">${escapeHtml(finalUrl)}</div>
                     <div class="action-buttons extract-buttons">
                         <button id="extractCopyBtn" onclick="copyExtractedLink()">一键复制</button>
