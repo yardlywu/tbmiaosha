@@ -948,22 +948,23 @@ async function fetchWithProxy(rawUrl) {
                     if (!appOpened) fallback();
                 }, 2500);
             } else {
-                // 安卓/荣耀/鸿蒙/APK：优先 tbopen://（荣耀实测有效），失败回落 taobao://，再失败复制兜底
-                tryScheme(tbopenUrl);
-                setTimeout(function() {
+                // 安卓/荣耀(MagicOS)：intent://(指定淘宝包名) → tbopen:// → taobao:// → 复制兜底
+                // intent:// 比自定义 scheme 更可靠：直接 package=com.taobao.taobao，系统能精准定位淘宝
+                const intentUrl = 'intent://m.taobao.com/tbopen/index.html?action=ali.open.nav&h5Url=' + encodeURIComponent(url) +
+                    '#Intent;scheme=https;package=com.taobao.taobao;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+                const attempts = [intentUrl, tbopenUrl, taobaoScheme];
+                let step = 0;
+                function nextAttempt() {
                     if (appOpened) {
                         document.removeEventListener('visibilitychange', visibilityHandler);
                         return;
                     }
-                    tryScheme(taobaoScheme);
-                    setTimeout(function() {
-                        if (appOpened) {
-                            document.removeEventListener('visibilitychange', visibilityHandler);
-                            return;
-                        }
-                        fallback();
-                    }, 1800);
-                }, 1000);
+                    if (step >= attempts.length) { fallback(); return; }
+                    const target = attempts[step++];
+                    tryScheme(target);
+                    setTimeout(nextAttempt, 1500);
+                }
+                nextAttempt();
             }
         }
 
