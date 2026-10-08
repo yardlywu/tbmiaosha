@@ -1466,9 +1466,11 @@ function openUCBrowserApp(url) {
                 if (resolved) finalUrl = resolved;
             }
             _extractedLink = finalUrl;
+            const extractedId = extractItemIdFromUrl(finalUrl) || '';
 
             resultDiv.innerHTML = `
                 <div class="extract-link-box">
+                    ${extractedId ? `<div style="font-size:14px;color:#2c6cb5;font-weight:600;margin-bottom:8px;word-break:break-all;">商品ID：<b style="color:#b5504a;">${escapeHtml(extractedId)}</b></div>` : ''}
                     <div class="extract-link" id="extractLinkDisplay">${escapeHtml(finalUrl)}</div>
                     <div class="action-buttons extract-buttons">
                         <button id="extractCopyBtn" onclick="copyExtractedLink()">一键复制</button>
