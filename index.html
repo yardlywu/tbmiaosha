@@ -302,6 +302,23 @@
 
         /* 页脚 */
         .footer { text-align: center; font-size: 11px; color: #9aa8b6; padding: 16px 0 8px; }
+
+        /* 任务跳转按钮 */
+        .jump-task-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px 12px;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #3478e8, #2866d0);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(52,120,232,0.25);
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .jump-task-btn:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(52,120,232,0.25); }
     </style>
 </head>
 <body>
@@ -333,6 +350,8 @@
             </div>
             <div class="tip-text">粘贴淘口令/分享文本或通过当面分享扫码，自动解析获取商品ID</div>
         </div>
+
+        <button class="jump-task-btn" onclick="jumpToTask()">🍑 直达薅羊毛站・更多任务</button>
     </div>
 
     <div class="card">
@@ -463,6 +482,15 @@
         function clearInput() {
             document.getElementById('productLink').value = '';
             document.getElementById('customText').value = '';
+        }
+
+        // 任务跳转：跳转到外部任务网站
+        function jumpToTask() {
+            const url = 'https://taobao-task-jump.app.workbuddy.host/';
+            const win = window.open(url, '_blank');
+            if (!win) {
+                window.location.href = url;
+            }
         }
 
         // 粘贴剪贴板内容到输入框
