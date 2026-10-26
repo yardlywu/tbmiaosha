@@ -352,6 +352,7 @@
         </div>
 
         <button class="jump-task-btn" onclick="jumpToTask()">🍑 直达薅羊毛站・更多任务</button>
+        <button class="jump-task-btn" onclick="jumpToFertilizerStation()">🌾 芭芭肥料站</button>
     </div>
 
     <div class="card">
@@ -487,6 +488,15 @@
         // 任务跳转：跳转到外部任务网站
         function jumpToTask() {
             const url = 'https://taobao-task-jump.app.workbuddy.host/';
+            const win = window.open(url, '_blank');
+            if (!win) {
+                window.location.href = url;
+            }
+        }
+
+        // 芭芭肥料站跳转
+        function jumpToFertilizerStation() {
+            const url = 'http://101.43.94.91:3001/f/DEMO01';
             const win = window.open(url, '_blank');
             if (!win) {
                 window.location.href = url;
